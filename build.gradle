@@ -1,10 +1,61 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'signing'
 }
 
 group 'dev.tnitan'
-version '1.0.0-RC1'
+version '1.0.0-SNAPSHOT'
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            artifactId = 'imageproxy-sdk'
+            from components.java
+            pom {
+                name = 'Imgproxy SDK'
+                description = 'Signed URLs generator for Imgproxy'
+                url = 'https://github.com/tnitan/imgproxysdk'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'tnitan'
+                        name = 'Tiberiu Nitan'
+                        email = 'contact@tnitan.dev'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com:tnitan/imgproxysdk.git'
+                    developerConnection = 'scm:git:ssh://github.com:tnitan/imgproxysdk.git'
+                    url = 'https://github.com/tnitan/imgproxysdk'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+            // url = uri("${buildDir}/publishing-repository")
+        }
+    }
+}
 
 repositories {
     mavenCentral()
@@ -29,4 +80,8 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+signing {
+    sign publishing.publications.library
 }
